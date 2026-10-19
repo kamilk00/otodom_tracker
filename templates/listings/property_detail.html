@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ property.title }} - Otodom Tracker{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'listings:property_list' %}" class="text-sm text-indigo-600 hover:underline">&larr; Powrót do listy ofert</a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main Info & Chart -->
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ property.title }}</h1>
+            <p class="text-sm text-gray-500 mb-4">Lokalizacja: {{ property.city }}{% if property.district %}, {{ property.district }}{% endif %}</p>
+
+            <div class="grid grid-cols-3 gap-4 py-4 border-y border-gray-100 mb-4 text-center">
+                <div>
+                    <span class="text-xs text-gray-500 uppercase block">Powierzchnia</span>
+                    <span class="text-lg font-bold text-gray-800">{{ property.area_sqm }} m²</span>
+                </div>
+                <div>
+                    <span class="text-xs text-gray-500 uppercase block">Pokoje</span>
+                    <span class="text-lg font-bold text-gray-800">{{ property.rooms|default:"Brak" }}</span>
+                </div>
+                <div>
+                    <span class="text-xs text-gray-500 uppercase block">ID Otodom</span>
+                    <span class="text-lg font-bold text-gray-800">{{ property.otodom_id }}</span>
+                </div>
+            </div>
+
+            <a href="{{ property.url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-sm text-indigo-600 hover:underline">
+                Zobacz oryginalną ofertę na Otodom &nearr;
+            </a>
+        </div>
+
+        <!-- Placeholder for Price History Chart (Step 2) -->
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Wykres zmian ceny</h2>
+            <div id="chart-container" class="h-64 flex items-center justify-center bg-gray-50 text-gray-400 text-sm rounded">
+                Miejsce na wykres Chart.js (Krok 2).
+            </div>
+        </div>
+    </div>
+
+    <!-- History Log Sidebar -->
+    <div class="space-y-6">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Historia zmian cen</h2>
+            <div class="space-y-3">
+                {% for entry in price_history %}
+                    <div class="flex justify-between items-center text-sm py-2 border-b border-gray-100 last:border-none">
+                        <div>
+                            <span class="font-bold text-gray-900 block">{{ entry.total_price }} zł</span>
+                            <span class="text-xs text-gray-500">{{ entry.price_per_sqm }} zł/m²</span>
+                        </div>
+                        <span class="text-xs text-gray-400">{{ entry.created_at|date:"Y-m-d H:i" }}</span>
+                    </div>
+                {% empty %}
+                    <p class="text-sm text-gray-500">Brak zarejestrowanych historii cen.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
