@@ -3,6 +3,7 @@ from apps.listings.models import Property, PriceHistory
 from scraper.parser import fetch_otodom_listing
 
 
+
 def _to_decimal(value: str | int | float | None) -> Decimal | None:
     """safe casting of values to Decimal"""
     if value is None or value == "":
@@ -23,55 +24,50 @@ def _to_int(value: str | int | float | None) -> int | None:
         return None
 
 
-def save_or_update_listing(url: str) -> Property | None:
+def save_or_update_listing(url: str, user: User) -> Property | None:
+    """
+    Fetch property details safely using .get() and associate the listing with a specific user.
+    Creates or updates the Property record and appends a PriceHistory entry if price changes.
+    """
     data = fetch_otodom_listing(url)
-    if not isinstance(data, dict):
+    if not data or not data.get('otodom_id'):
         return None
 
-    otodom_id = data.get("otodom_id")
-    if not otodom_id:
-        print("Brak otodom_id w przekazanych danych.")
-        return None
+    # Safely extract scalar and decimal data via .get()
+    area_raw = data.get('area_sqm')
+    total_price_raw = data.get('total_price')
+    price_sqm_raw = data.get('price_per_sqm')
 
-    area_sqm = _to_decimal(data.get("area_sqm"))
-    total_price = _to_decimal(data.get("total_price"))
-    price_per_sqm = _to_decimal(data.get("price_per_sqm"))
-    rooms = _to_int(data.get("rooms"))
+    # Convert numeric fields safely to Decimal
+    area_sqm = Decimal(str(area_raw)) if area_raw is not None else Decimal('0')
+    total_price = Decimal(str(total_price_raw)) if total_price_raw is not None else None
+    price_sqm = Decimal(str(price_sqm_raw)) if price_sqm_raw is not None else None
 
-    if area_sqm is None or total_price is None or price_per_sqm is None:
-        print(f"Brak kluczowych danych liczbowych (cena/metraż) dla ID: {otodom_id}")
-        return None
-
-    defaults = {
-        "title": data.get("title") or "Brak tytułu",
-        "url": data.get("url") or url,
-        "city": data.get("city") or "Nieokreślone",
-        "district": data.get("district") or "",
-        "area_sqm": area_sqm,
-        "rooms": rooms,
-        "image_url": data.get("image_url") or "",
-    }
-
-    # save or download property data
-    prop, created = Property.objects.get_or_create(
-        otodom_id=str(otodom_id),
-        defaults=defaults
+    # Retrieve existing property or create a new one assigned to the logged-in user
+    property_obj, created = Property.objects.update_or_create(
+        otodom_id=data.get('otodom_id'),
+        defaults={
+            'user': user,
+            'title': data.get('title', ''),
+            'url': data.get('url', url),
+            'city': data.get('city', ''),
+            'district': data.get('district') or "",
+            'area_sqm': area_sqm,
+            'rooms': data.get('rooms'),
+            'image_url': data.get('image_url'),
+            'is_active': True,
+        }
     )
 
-    # fields update
-    if not created:
-        for key, value in defaults.items():
-            setattr(prop, key, value)
-        prop.save()
+    # Append price entry if valid price data exists and has changed
+    if total_price:
+        latest_price_entry = property_obj.price_history.order_by('-created_at').first()
 
-    # save price history
-    last_history = prop.price_history.first()
+        if not latest_price_entry or latest_price_entry.total_price != total_price:
+            PriceHistory.objects.create(
+                property = property_obj,
+                total_price = total_price,
+                price_per_sqm = price_sqm
+            )
 
-    if not last_history or last_history.total_price != total_price:
-        PriceHistory.objects.create(
-            property = prop,
-            total_price = total_price,
-            price_per_sqm = price_per_sqm
-        )
-
-    return prop
+    return property_obj

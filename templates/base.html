@@ -16,8 +16,16 @@
             <a href="{% url 'listings:property_list' %}" class="text-xl font-bold tracking-wide flex items-center gap-2">
                 <span class="text-indigo-400">🏡</span> Otodom Tracker
             </a>
-            <nav class="flex items-center gap-4">
-                <a href="{% url 'admin:index' %}" class="text-sm font-medium text-gray-300 hover:text-white transition">Panel Admina</a>
+            <nav class="flex items-center gap-4 text-sm">
+                {% if user.is_authenticated %}
+                    <span class="text-gray-300">Zalogowany jako: <strong class="text-white">{{ user.username }}</strong></span>
+                    <form method="post" action="{% url 'logout' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-red-400 hover:text-red-300 transition">Wyloguj</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="text-indigo-400 hover:text-indigo-300 transition">Zaloguj się</a>
+                {% endif %}
             </nav>
         </div>
     </header>

@@ -5,6 +5,7 @@ User = get_user_model()
 
 
 class Property(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE, related_name = 'properties', verbose_name = "Właściciel")
     otodom_id = models.CharField(max_length = 64, unique = True, db_index = True)
     title = models.CharField(max_length = 255)
     url = models.URLField(max_length = 500)
@@ -22,7 +23,7 @@ class Property(models.Model):
         verbose_name_plural = "Nieruchomości"
 
     def __str__(self):
-        return f"{self.title} ({self.city})"
+        return f"{self.title} - {self.city} ({self.user.username})"
 
 
 class PriceHistory(models.Model):

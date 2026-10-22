@@ -3,6 +3,26 @@
 {% block title %}Śledzone Nieruchomości - Otodom Tracker{% endblock %}
 
 {% block content %}
+<!-- Sekcja: Formularz dodawania oferty -->
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
+    <h2 class="text-lg font-semibold text-gray-900 mb-2">Dodaj nową ofertę do śledzenia</h2>
+    <p class="text-sm text-gray-600 mb-4">Wklej link z Otodom.pl, aby pobrać parametry mieszkania i rozpocząć monitorowanie jego ceny.</p>
+    
+    <form method="post" action="{% url 'listings:property_list' %}" class="flex flex-col sm:flex-row gap-3">
+        {% csrf_token %}
+        <div class="flex-grow">
+            {{ form.url }}
+            {% if form.url.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.url.errors.0 }}</p>
+            {% endif %}
+        </div>
+        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2 rounded-lg transition text-sm flex items-center justify-center gap-2">
+            <span>Dodaj</span> &rarr;
+        </button>
+    </form>
+</div>
+
+<!-- Sekcja: Lista śledzonych kart -->
 <div class="mb-6 flex justify-between items-center">
     <div>
         <h1 class="text-2xl font-bold text-gray-900">Śledzone Nieruchomości</h1>
@@ -15,7 +35,6 @@
         {% for prop in properties %}
             {% with latest_price=prop.price_history.first %}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition">
-                <!-- Thumbnail Image -->
                 <div class="h-48 bg-gray-200 relative overflow-hidden">
                     {% if prop.image_url %}
                         <img src="{{ prop.image_url }}" alt="{{ prop.title }}" class="w-full h-full object-cover">
@@ -27,7 +46,6 @@
                     </span>
                 </div>
 
-                <!-- Card Content -->
                 <div class="p-4">
                     <h2 class="text-md font-semibold text-gray-900 line-clamp-1 mb-2" title="{{ prop.title }}">
                         <a href="{% url 'listings:property_detail' prop.pk %}" class="hover:text-indigo-600">
@@ -35,7 +53,6 @@
                         </a>
                     </h2>
 
-                    <!-- Main Stats -->
                     <div class="flex justify-between items-baseline mb-3">
                         <div>
                             <span class="text-xl font-bold text-slate-900">
@@ -55,7 +72,6 @@
                         </div>
                     </div>
 
-                    <!-- Footer Action -->
                     <div class="pt-3 border-t border-gray-100 flex justify-between items-center text-xs text-gray-500">
                         <span>Aktualizacja: {{ prop.updated_at|date:"Y-m-d H:i" }}</span>
                         <a href="{% url 'listings:property_detail' prop.pk %}" class="text-indigo-600 font-medium hover:underline">
