@@ -6,23 +6,30 @@
 <!-- Price drop alerts and notifications section -->
 {% if request.user.is_authenticated %}
     {% if unread_notifications %}
-    <div class="mb-6 space-y-3">
-        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider">Notifications & Alerts</h3>
-        {% for notif in unread_notifications %}
-            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <div class="flex items-center space-x-3">
-                    <span class="text-blue-500 text-lg">🔔</span>
-                    <p class="text-sm text-blue-900 font-medium">{{ notif.message }}</p>
-                </div>
-                <div class="flex items-center gap-3 text-xs text-blue-600 self-end sm:self-auto">
-                    <span>{{ notif.created_at|date:"Y-m-d H:i" }}</span>
-                    {% if notif.property %}
-                        <a href="{% url 'listings:property_detail' notif.property.pk %}" class="underline font-semibold hover:text-blue-800">View listing &rarr;</a>
-                    {% endif %}
+        <div class="mb-6 space-y-3">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider">Notifications & Alerts</h3>
+                <div class="flex gap-4">
+                    <a href="{% url 'listings:mark_all_read' %}" class="text-xs text-indigo-600 hover:underline font-medium">Mark all as read</a>
+                    <a href="{% url 'listings:notification_history' %}" class="text-xs text-gray-600 hover:underline font-medium">View history &rarr;</a>
                 </div>
             </div>
-        {% endfor %}
-    </div>
+            
+            {% for notif in unread_notifications %}
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-blue-500 text-lg">🔔</span>
+                        <p class="text-sm text-blue-900 font-medium">{{ notif.message }}</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs text-blue-600 self-end sm:self-auto">
+                        <span>{{ notif.created_at|date:"Y-m-d H:i" }}</span>
+                        {% if notif.property %}
+                            <a href="{% url 'listings:property_detail' notif.property.pk %}" class="underline font-semibold hover:text-blue-800">View listing &rarr;</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     {% endif %}
 {% endif %}
 

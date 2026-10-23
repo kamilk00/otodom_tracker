@@ -91,3 +91,19 @@ def register(request):
         form = UserCreationForm()
         
     return render(request, 'registration/register.html', {'form': form})
+
+
+@login_required
+def mark_all_notifications_as_read(request):
+    """Mark all unread notifications for the logged-in user as read."""
+    request.user.notifications.filter(is_read = False).update(is_read = True)
+    return redirect('listings:property_list')
+
+
+@login_required
+def notification_history(request):
+    """Display full notification history for the logged-in user."""
+    notifications = request.user.notifications.all().order_by('-created_at')
+    return render(request, 'listings/notification_history.html', {
+        'notifications': notifications
+    })

@@ -7,4 +7,6 @@ urlpatterns = [
     path('', views.property_list, name = 'property_list'),
     path('ogloszenie/<int:pk>/', views.property_detail, name = 'property_detail'),
     path('property/<int:pk>/delete/', views.property_delete, name = 'property_delete'),
+    path('notifications/read-all/', views.mark_all_notifications_as_read, name = 'mark_all_read'),
+    path('notifications/', views.notification_history, name = 'notification_history'),
 ]

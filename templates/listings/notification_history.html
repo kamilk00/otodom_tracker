@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Historia Powiadomień - Otodom Tracker{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Notification History</h1>
+        <p class="text-sm text-gray-600">All price drop alerts and system notifications.</p>
+    </div>
+    <a href="{% url 'listings:property_list' %}" class="text-sm text-indigo-600 hover:underline">&larr; Back to properties</a>
+</div>
+
+{% if notifications %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="divide-y divide-gray-200">
+            {% for notif in notifications %}
+                <div class="p-4 flex items-center justify-between {% if not notif.is_read %}bg-blue-50/50{% endif %}">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-lg">{% if notif.is_read %}📌{% else %}🔔{% endif %}</span>
+                        <div>
+                            <p class="text-sm text-gray-900 font-medium">{{ notif.message }}</p>
+                            <span class="text-xs text-gray-500">{{ notif.created_at|date:"Y-m-d H:i" }}</span>
+                        </div>
+                    </div>
+                    {% if notif.property %}
+                        <a href="{% url 'listings:property_detail' notif.property.pk %}" class="text-xs text-indigo-600 hover:underline font-semibold">View listing &rarr;</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% else %}
+    <div class="bg-white rounded-lg p-8 text-center border border-gray-200">
+        <p class="text-gray-500">No notifications found.</p>
+    </div>
+{% endif %}
+{% endblock %}
