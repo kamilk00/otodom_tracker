@@ -1,6 +1,5 @@
 from pathlib import Path
 
-# Buduj ścieżki wewnątrz projektu: BASE_DIR / 'subfolder'
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-local-dev-key-change-in-production'
@@ -10,7 +9,6 @@ DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
-# Definicje aplikacji
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -19,7 +17,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Nasze aplikacje
     'apps.listings',
     'apps.alerts',
 ]
@@ -47,6 +44,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.listings.context_processors.unread_notifications'
             ],
         },
     },
@@ -55,7 +53,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'otodom_tracker.wsgi.application'
 
 
-# Baza danych lokalna (SQLite)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -64,7 +61,6 @@ DATABASES = {
 }
 
 
-# Walidacja haseł
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -73,7 +69,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Lokalizacja i czas
 LANGUAGE_CODE = 'pl-pl'
 
 TIME_ZONE = 'Europe/Warsaw'
@@ -83,7 +78,6 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Pliki statyczne (CSS, JavaScript, Obrazy)
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 

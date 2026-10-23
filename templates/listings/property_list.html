@@ -3,10 +3,33 @@
 {% block title %}Śledzone Nieruchomości - Otodom Tracker{% endblock %}
 
 {% block content %}
-<!-- Sekcja: Formularz dodawania oferty -->
+<!-- Price drop alerts and notifications section -->
+{% if request.user.is_authenticated %}
+    {% if unread_notifications %}
+    <div class="mb-6 space-y-3">
+        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider">Notifications & Alerts</h3>
+        {% for notif in unread_notifications %}
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div class="flex items-center space-x-3">
+                    <span class="text-blue-500 text-lg">🔔</span>
+                    <p class="text-sm text-blue-900 font-medium">{{ notif.message }}</p>
+                </div>
+                <div class="flex items-center gap-3 text-xs text-blue-600 self-end sm:self-auto">
+                    <span>{{ notif.created_at|date:"Y-m-d H:i" }}</span>
+                    {% if notif.property %}
+                        <a href="{% url 'listings:property_detail' notif.property.pk %}" class="underline font-semibold hover:text-blue-800">View listing &rarr;</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endif %}
+
+<!-- Add new property offer form -->
 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
-    <h2 class="text-lg font-semibold text-gray-900 mb-2">Dodaj nową ofertę do śledzenia</h2>
-    <p class="text-sm text-gray-600 mb-4">Wklej link z Otodom.pl, aby pobrać parametry mieszkania i rozpocząć monitorowanie jego ceny.</p>
+    <h2 class="text-lg font-semibold text-gray-900 mb-2">Track a New Property</h2>
+    <p class="text-sm text-gray-600 mb-4">Paste an Otodom.pl link to fetch listing parameters and start tracking price changes.</p>
     
     <form method="post" action="{% url 'listings:property_list' %}" class="flex flex-col sm:flex-row gap-3">
         {% csrf_token %}
@@ -17,35 +40,38 @@
             {% endif %}
         </div>
         <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2 rounded-lg transition text-sm flex items-center justify-center gap-2">
-            <span>Dodaj</span> &rarr;
+            <span>Add</span> &rarr;
         </button>
     </form>
 </div>
 
-<!-- Sekcja: Lista śledzonych kart -->
+<!-- Tracked properties section header -->
 <div class="mb-6 flex justify-between items-center">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900">Śledzone Nieruchomości</h1>
-        <p class="text-sm text-gray-600">Przegląd aktywnych ofert oraz historii zmian cen.</p>
+        <h1 class="text-2xl font-bold text-gray-900">Tracked Properties</h1>
+        <p class="text-sm text-gray-600">Overview of active property listings and price histories.</p>
     </div>
 </div>
 
+<!-- Properties grid list -->
 {% if properties %}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for prop in properties %}
             {% with latest_price=prop.price_history.first %}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition">
+                <!-- Property image preview and location badge -->
                 <div class="h-48 bg-gray-200 relative overflow-hidden">
                     {% if prop.image_url %}
                         <img src="{{ prop.image_url }}" alt="{{ prop.title }}" class="w-full h-full object-cover">
                     {% else %}
-                        <div class="flex items-center justify-center h-full text-gray-400 text-sm">Brak zdjęcia</div>
+                        <div class="flex items-center justify-center h-full text-gray-400 text-sm">No image available</div>
                     {% endif %}
                     <span class="absolute top-2 right-2 bg-slate-900/80 text-white text-xs px-2 py-1 rounded">
                         {{ prop.city }}{% if prop.district %}, {{ prop.district }}{% endif %}
                     </span>
                 </div>
 
+                <!-- Property details container -->
                 <div class="p-4">
                     <h2 class="text-md font-semibold text-gray-900 line-clamp-1 mb-2" title="{{ prop.title }}">
                         <a href="{% url 'listings:property_detail' prop.pk %}" class="hover:text-indigo-600">
@@ -56,26 +82,27 @@
                     <div class="flex justify-between items-baseline mb-3">
                         <div>
                             <span class="text-xl font-bold text-slate-900">
-                                {% if latest_price %}{{ latest_price.total_price }} zł{% else %}Brak danych{% endif %}
+                                {% if latest_price %}{{ latest_price.total_price }} PLN{% else %}No data{% endif %}
                             </span>
                             {% if latest_price %}
                                 <span class="text-xs text-gray-500 block">
-                                    {{ latest_price.price_per_sqm }} zł/m²
+                                    {{ latest_price.price_per_sqm }} PLN/m²
                                 </span>
                             {% endif %}
                         </div>
                         <div class="text-right text-sm text-gray-600">
                             <span class="font-medium">{{ prop.area_sqm }} m²</span>
                             {% if prop.rooms %}
-                                <span class="text-gray-400">•</span> {{ prop.rooms }} pok.
+                                <span class="text-gray-400">•</span> {{ prop.rooms }} rooms
                             {% endif %}
                         </div>
                     </div>
 
+                    <!-- Footer with timestamp and detail link -->
                     <div class="pt-3 border-t border-gray-100 flex justify-between items-center text-xs text-gray-500">
-                        <span>Aktualizacja: {{ prop.updated_at|date:"Y-m-d H:i" }}</span>
+                        <span>Updated: {{ prop.updated_at|date:"Y-m-d H:i" }}</span>
                         <a href="{% url 'listings:property_detail' prop.pk %}" class="text-indigo-600 font-medium hover:underline">
-                            Szczegóły &rarr;
+                            Details &rarr;
                         </a>
                     </div>
                 </div>
@@ -84,8 +111,9 @@
         {% endfor %}
     </div>
 {% else %}
+    <!-- Empty state message -->
     <div class="bg-white rounded-lg p-8 text-center border border-gray-200">
-        <p class="text-gray-500">Brak obserwowanych nieruchomości w bazie danych.</p>
+        <p class="text-gray-500">No tracked properties found in the database.</p>
     </div>
 {% endif %}
 {% endblock %}

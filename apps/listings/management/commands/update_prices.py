@@ -1,7 +1,7 @@
 import logging
 from decimal import Decimal
 from django.core.management.base import BaseCommand
-from apps.listings.models import Property, PriceHistory
+from apps.listings.models import Property, PriceHistory, Notification
 from scraper.parser import fetch_otodom_listing
 
 logger = logging.getLogger(__name__)
@@ -34,18 +34,28 @@ class Command(BaseCommand):
 
             if not latest_entry or latest_entry.total_price != new_total_price:
                 PriceHistory.objects.create(
-                    property=prop,
-                    total_price=new_total_price,
-                    price_per_sqm=new_price_sqm
+                    property = prop,
+                    total_price = new_total_price,
+                    price_per_sqm = new_price_sqm
                 )
                 updated_count += 1
 
                 if latest_entry and new_total_price < latest_entry.total_price:
                     price_diff = latest_entry.total_price - new_total_price
+                    alert_msg = f"Spadek ceny! Oferta '{prop.title}' staniała o {price_diff} zł (Nowa cena: {new_total_price} zł)."
+                    
+                    usernames = ", ".join([u.username for u in prop.users.all()])
                     self.stdout.write(
                         self.style.SUCCESS(
-                            f"ALERT! Cena spadła o {price_diff} zł dla oferty '{prop.title}' (Użytkownik: {prop.user.username})"
+                            f"ALERT! Cena spadła o {price_diff} zł dla oferty '{prop.title}' (Użytkownicy: {usernames})"
                         )
                     )
+
+                    for user in prop.users.all():
+                        Notification.objects.create(
+                            user = user,
+                            property = prop,
+                            message = alert_msg
+                        )
 
         self.stdout.write(self.style.SUCCESS(f"Zakończono odświeżanie. Zaktualizowano cenę w {updated_count} ofertach."))

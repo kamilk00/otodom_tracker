@@ -43,11 +43,10 @@ def save_or_update_listing(url: str, user: User) -> Property | None:
     total_price = Decimal(str(total_price_raw)) if total_price_raw is not None else None
     price_sqm = Decimal(str(price_sqm_raw)) if price_sqm_raw is not None else None
 
-    # Retrieve existing property or create a new one assigned to the logged-in user
+    # Retrieve existing property or create a new one globally
     property_obj, created = Property.objects.update_or_create(
-        otodom_id=data.get('otodom_id'),
-        defaults={
-            'user': user,
+        otodom_id = data.get('otodom_id'),
+        defaults = {
             'title': data.get('title', ''),
             'url': data.get('url', url),
             'city': data.get('city', ''),
@@ -58,6 +57,8 @@ def save_or_update_listing(url: str, user: User) -> Property | None:
             'is_active': True,
         }
     )
+
+    property_obj.users.add(user)
 
     # Append price entry if valid price data exists and has changed
     if total_price:

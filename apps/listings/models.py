@@ -5,7 +5,7 @@ User = get_user_model()
 
 
 class Property(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE, related_name = 'properties', verbose_name = "Właściciel")
+    users = models.ManyToManyField(User, related_name = 'tracked_properties')    
     otodom_id = models.CharField(max_length = 64, unique = True, db_index = True)
     title = models.CharField(max_length = 255)
     url = models.URLField(max_length = 500)
@@ -23,7 +23,7 @@ class Property(models.Model):
         verbose_name_plural = "Nieruchomości"
 
     def __str__(self):
-        return f"{self.title} - {self.city} ({self.user.username})"
+        return f"{self.title} - {self.city}"
 
 
 class PriceHistory(models.Model):
@@ -39,3 +39,14 @@ class PriceHistory(models.Model):
 
     def __str__(self):
         return f"{self.property.title} - {self.total_price} PLN ({self.created_at.strftime('%Y-%m-%d')})"
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE, related_name = 'notifications')
+    property = models.ForeignKey(Property, on_delete = models.SET_NULL, null = True, blank = True)
+    message = models.TextField()
+    is_read = models.BooleanField(default = False)
+    created_at = models.DateTimeField(auto_now_add = True)
+
+    def __str__(self):
+        return f"Alert dla {self.user.username} - {self.created_at.strftime('%Y-%m-%d %H:%M')}"

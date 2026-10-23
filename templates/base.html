@@ -18,7 +18,12 @@
             </a>
             <nav class="flex items-center gap-4 text-sm">
                 {% if user.is_authenticated %}
+                    <span class="bg-indigo-600 text-white text-xs px-2.5 py-1 rounded-full font-medium">
+                        Alerty: {{ unread_alerts_count }}
+                    </span>
+
                     <span class="text-gray-300">Zalogowany jako: <strong class="text-white">{{ user.username }}</strong></span>
+                    
                     <form method="post" action="{% url 'logout' %}" class="inline">
                         {% csrf_token %}
                         <button type="submit" class="text-red-400 hover:text-red-300 transition">Wyloguj</button>
