@@ -1,4 +1,5 @@
 from decimal import Decimal, InvalidOperation
+
 from apps.listings.models import Property, PriceHistory
 from scraper.parser import fetch_otodom_listing
 

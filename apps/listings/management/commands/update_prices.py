@@ -1,6 +1,7 @@
 import logging
 from decimal import Decimal
 from django.core.management.base import BaseCommand
+
 from apps.listings.models import Property, PriceHistory, Notification
 from scraper.parser import fetch_otodom_listing
 

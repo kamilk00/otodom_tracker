@@ -4,6 +4,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch
 from django.contrib.auth.forms import UserCreationForm
+from django.utils import timezone
+
 from .models import Property, PriceHistory, Notification
 from .forms import AddPropertyForm
 from .services import save_or_update_listing
@@ -54,7 +56,7 @@ def property_detail(request, pk):
     
     price_history = property_obj.price_history.order_by('created_at')
     
-    chart_labels = [entry.created_at.strftime('%Y-%m-%d %H:%M') for entry in price_history]
+    chart_labels = [timezone.localtime(entry.created_at).strftime('%Y-%m-%d %H:%M') for entry in price_history]
     chart_data = [float(entry.total_price) for entry in price_history]
 
     return render(request, 'listings/property_detail.html', {
