@@ -22,7 +22,7 @@ A modern, multi-user Django web application designed to track real estate listin
 
 * **Backend:** Python 3.10+, Django 5.x, SQLite / PostgreSQL
 * **Frontend:** HTML5, Tailwind CSS, JavaScript, Chart.js
-* **Scraping:** Requests, BeautifulSoup4
+* **Scraping:** Requests, LXML
 
 ---
 
