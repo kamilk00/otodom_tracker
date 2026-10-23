@@ -21,8 +21,7 @@ def start_scheduler():
     scheduler.add_job(
         run_price_update, 
         'interval', 
-        minutes = 3,
-        #hours = 12, 
+        hours = 12, 
         id = 'otodom_price_updater', 
         replace_existing = True
     )
