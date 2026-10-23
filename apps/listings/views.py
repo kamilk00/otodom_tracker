@@ -57,6 +57,20 @@ def property_detail(request, pk):
         'chart_data_json': json.dumps(chart_data),
     })
 
+
+@login_required
+def property_delete(request, pk):
+    """Delete a property listing owned by the logged-in user."""
+    property_obj = get_object_or_404(Property, pk = pk, user = request.user)
+    
+    if request.method == 'POST':
+        property_obj.delete()
+        messages.success(request, "Oferta została usunięta.")
+        return redirect('listings:property_list')
+        
+    return render(request, 'listings/property_confirm_delete.html', {'property': property_obj})
+
+
 def register(request):
     """Handle new user registration using Django's built-in UserCreationForm."""
     if request.method == 'POST':

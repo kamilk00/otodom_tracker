@@ -38,6 +38,12 @@
             <a href="{{ property.url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-sm text-indigo-600 hover:underline">
                 Zobacz oryginalną ofertę na Otodom &nearr;
             </a>
+            <form method="post" action="{% url 'listings:property_delete' property.pk %}" class="mt-4 pt-4 border-t border-gray-100" onsubmit="return confirm('Czy na pewno chcesz usunąć tę ofertę ze śledzenia?');">
+                {% csrf_token %}
+                <button type="submit" class="text-sm text-red-600 hover:text-red-800 font-medium transition">
+                    Usuń tę ofertę ze śledzenia
+                </button>
+            </form>
         </div>
 
         <!-- Price History Chart Card -->
